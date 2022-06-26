@@ -1,30 +1,25 @@
-import { Repository, UpdateResult } from "typeorm";
+import { Repository } from "typeorm";
 import { AppDataSource } from "../data-source";
-import { Stock } from "../entities/stock.entity";
+import { Stock } from "../entities";
 
 interface IStockRepo {
+  create: (stock: Partial<Stock>) => Promise<Stock>;
   save: (stock: Partial<Stock>) => Promise<Stock>;
-  allStock: () => Promise<Stock[]>;
-  retieve: (payload: object) => Promise<Stock>;
-  updateStock: (id: string, payload: Partial<Stock>) => Promise<UpdateResult>;
+  findOne: (payload: object) => Promise<Stock>;
 }
 
-class StockRepository implements IStockRepo {
-  private repo: Repository<Stock>;
+class StockRepo implements IStockRepo {
+  private ormRepo: Repository<Stock>;
 
   constructor() {
-    this.repo = AppDataSource.getRepository(Stock);
+    this.ormRepo = AppDataSource.getRepository(Stock);
   }
+  create = async (stock: Partial<Stock>) => await this.ormRepo.create(stock);
+  save = async (stock: Partial<Stock>) => await this.ormRepo.save(stock);
 
-  save = async (stock: Partial<Stock>) => await this.repo.save(stock);
-
-  allStock = async () => await this.repo.find();
-
-  retieve = async (payload: object) =>
-    await this.repo.findOneBy({ ...payload });
-
-  updateStock = async (id: string, payload: Partial<Stock>) =>
-    await this.repo.update(id, { ...payload });
+  findOne = async (payload: object) => {
+    return await this.ormRepo.findOneBy({ ...payload });
+  };
 }
 
-export default new StockRepository();
+export default new StockRepo()

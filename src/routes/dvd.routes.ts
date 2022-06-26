@@ -1,22 +1,22 @@
 import { Router } from "express";
-import { verifyToken, isAdm } from "../middlewares";
 import { dvdController } from "../controllers";
+import { validateSchema, verifyToken } from "../middlewares";
+import { buyDvdSchema, createDvdSchema } from "../schemas/dvd";
 
 const dvdRouter = Router();
 
-dvdRouter.post(
-  "/dvds/register",
-  isAdm,
-  dvdController.craetedDvdController
-);
+  dvdRouter.post(
+    "/register",
+    validateSchema(createDvdSchema),
+    verifyToken,
+    dvdController.createDvd
+  );
+  dvdRouter.get("/", dvdController.listDvds);
+  dvdRouter.post(
+    "/buy/:dvdId",
+    validateSchema(buyDvdSchema),
+    verifyToken,
+    dvdController.buyDvd
+  );
 
-dvdRouter.get("/dvds", 
-dvdController.getAllDvdController);
-
-
-// Fazer essa
-dvdRouter.post("/dvds/buy/:id",
-verifyToken,
-dvdController.buyDvdController)
-
-export {dvdRouter}
+  export { dvdRouter}

@@ -1,7 +1,5 @@
 import { buyDvdSchema } from "./buyDvd.schema";
-import { createDvdSchema } from "./createDvd.schema";
+import { createDvdSchema, serializedDvdSchema } from "./createDvd.schema";
 import getAllDvdSchema from "./getAllDvd.schema";
-import { serializedCreateDvdSchema } from "./createDvd.schema";
 
-
-export {buyDvdSchema, createDvdSchema, getAllDvdSchema, serializedCreateDvdSchema}
+export { buyDvdSchema, createDvdSchema, getAllDvdSchema, serializedDvdSchema };

@@ -1,27 +1,45 @@
-import * as yup from 'yup'
+import * as yup from "yup";
 
-const createDvdSchema = yup.object().shape({
+const createDvdSchema = yup
+  .object()
+  .shape({
     dvds: yup.array().of(
-        yup.object().shape({
-            name: yup.string().required(),
-            duration: yup.string().required(),
-            quantity: yup.number().positive().required(),
-            price: yup.number().positive().required()
-        }).required()
-    ).required()
-})
+      yup
+        .object()
+        .shape({
+          name: yup
+            .string()
+            .required()
+            .transform((value, originalValue) => {
+              return originalValue.replace(/\w\S*/g, (t: string) => {
+                return t.charAt(0).toUpperCase() + t.substr(1).toLowerCase();
+              });
+            }),
+          duration: yup.string().required(),
+          quantity: yup.number().min(0).integer().required(),
+          price: yup.number().required().positive(),
+        })
+        .required()
+    ),
+  })
+  .required();
 
-const serializedCreateDvdSchema = yup.array().of(
-    yup.object().shape({
-        id: yup.string().required(),
+const serializedDvdSchema = yup.object().shape({
+  dvds: yup.array().of(
+    yup
+      .object()
+      .shape({
         name: yup.string().required(),
         duration: yup.string().required(),
         stock: yup.object().shape({
-            id: yup.string(),
-            quantity: yup.number(),
-            price: yup.number()
-        })
-    }).required()
-).required()
+          quantity: yup.number().min(0).integer().required(),
+          price: yup.number().required().positive(),
+          id: yup.string().uuid().required(),
+        }),
+        id: yup.string().uuid().required(),
+      })
+      .nullable()
+  ),
+});
 
-export { createDvdSchema, serializedCreateDvdSchema}
+export { createDvdSchema, serializedDvdSchema };

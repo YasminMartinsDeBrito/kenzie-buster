@@ -1,27 +1,23 @@
-import { NextFunction, Request, Response} from 'express'
-import { User } from '../entities'
-import { ErrorHandler } from '../erros'
-import { userRepository } from '../repositories'
+import { NextFunction, Request, Response } from "express";
+import { User } from "../entities";
+import { userRepository } from "../repositories";
 
 const verifyUserExists = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-    const foundUser: User = await userRepository.findOne({
-        email: (req.validated as User).email
-    })
+  const foundUser: User = await userRepository.findOne({
+    email: (req.validated as User).email,
+  });
 
-    if(foundUser){
-        throw new ErrorHandler(409, "Email already exists")
-    }
+  if (foundUser) {
+    return res.status(409).json({
+      error: `Key (email)=(${(req.validated as User).email}) already exists.`,
+    });
+  }
 
-    return next()
-}
+  return next();
+};
 
-export default verifyUserExists
-
-
-
-
-
+export default verifyUserExists;

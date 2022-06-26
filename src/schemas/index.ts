@@ -2,9 +2,10 @@ import {
   createUserSchema,
   loginUserSchema,
   serializedCreateUserSchema,
+
 } from "./user";
 
-import { buyDvdSchema, createDvdSchema, serializedCreateDvdSchema,getAllDvdSchema } from "./dvd";
+import { serializedDvdSchema, buyDvdSchema, createDvdSchema, getAllDvdSchema } from "./dvd";
 
 import { payCartSchema, serializedCartPaySchema, serializedCartSchema,serializedCartsSchema } from "./cart";
 
@@ -16,8 +17,8 @@ export {
   serializedCreateUserSchema,
   buyDvdSchema,
   payCartSchema,
-  serializedCreateDvdSchema,
   serializedCartPaySchema,
   serializedCartSchema,
-  serializedCartsSchema
+  serializedCartsSchema,
+  serializedDvdSchema
 };

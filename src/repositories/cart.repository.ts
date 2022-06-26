@@ -1,30 +1,30 @@
-import { Repository, UpdateResult } from "typeorm";
+import { Repository } from "typeorm";
 import { AppDataSource } from "../data-source";
-import { Cart } from "../entities/cart.entity";
+import { Cart } from "../entities";
 
 interface ICartRepo {
   save: (cart: Partial<Cart>) => Promise<Cart>;
-  allCart: () => Promise<Cart[]>;
-  retieve: (payload: object) => Promise<Cart>;
-  updateCart: (id: string, payload: Partial<Cart>) => Promise<UpdateResult>;
+  all: () => Promise<Cart[]>;
+  findOne: (payload: object) => Promise<Cart>;
+  findAllBy: (payload: object) => Promise<Cart[]>;
 }
 
-class CartRepository implements ICartRepo {
-  private repo: Repository<Cart>;
+class CartRepo implements ICartRepo {
+  private ormRepo: Repository<Cart>;
 
   constructor() {
-    this.repo = AppDataSource.getRepository(Cart);
+    this.ormRepo = AppDataSource.getRepository(Cart);
   }
 
-  save = async (cart: Partial<Cart>) => await this.repo.save(cart);
+  save = async (cart: Partial<Cart>) => await this.ormRepo.save(cart);
+  all = async () => await this.ormRepo.find();
 
-  allCart = async () => await this.repo.find();
+  findOne = async (payload: object) => {
+    return await this.ormRepo.findOneBy({ ...payload });
+  };
 
-  retieve = async (payload: object) =>
-    await this.repo.findOneBy({ ...payload });
-
-  updateCart = async (id: string, payload: Partial<Cart>) =>
-    await this.repo.update(id, { ...payload });
+  findAllBy = async (payload: object) =>
+    await this.ormRepo.findBy({ ...payload });
 }
 
-export default new CartRepository();
+export default new CartRepo();

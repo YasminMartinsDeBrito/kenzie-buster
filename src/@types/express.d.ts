@@ -1,14 +1,22 @@
-import {  User } from "../entities"
-import { IDvdRepo, IQuantity} from '../types'
+import { User } from "../entities";
 
-declare global{
-    namespace Express {
-        interface Request {
-           user: User
-           validated: User | IDvdRepo | IQuantity
-           decoded: User
-           email: string
-        }
+interface IDvdCreate {
+  name: string;
+  duration: string;
+  quantity: number;
+  price: number;
+}
+
+interface IDvdCreateList {
+  dvds: IDvdCreate[];
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      validated: User | IDvdCreateList;
+      userAuth: User;
     }
+  }
 }
 

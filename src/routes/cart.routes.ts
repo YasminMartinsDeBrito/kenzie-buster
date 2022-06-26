@@ -5,9 +5,9 @@ import {  verifyToken } from "../middlewares";
 const cartRouter = Router();
 
 cartRouter.put(
-  "/carts/pay/:id",
+  "/pay",
   verifyToken,
-  cartController.updatedCartController
+  cartController.payCart
 );
 
 export { cartRouter };

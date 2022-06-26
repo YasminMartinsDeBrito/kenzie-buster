@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { userController } from "../controllers";
-import { validateSchema, verifyToken,  verifyUserExists, isAdm } from "../middlewares";
+import { validateSchema, verifyToken,  verifyUserExists} from "../middlewares";
 import { createUserSchema, loginUserSchema } from "../schemas";
 
 const userRouter = Router();
@@ -13,7 +13,6 @@ userRouter.post(
 
 userRouter.post(
   "/register",
-  isAdm,
   validateSchema(createUserSchema),
   verifyToken,
   verifyUserExists,

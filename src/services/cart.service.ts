@@ -1,86 +1,76 @@
-import { Request} from 'express'
-import { ErrorHandler } from '../erros'
-import { cartRepository, dvdRepository, stockRepository, userRepository } from '../repositories'
-import { IQuantity } from '../types'
-import { Dvd, User } from '../entities'
-import { serializedCartSchema, serializedCartsSchema} from '../schemas'
+import { Request } from "express";
+import { Dvd, Stock, User } from "../entities";
+import { cartRepository, stockRepository } from "../repositories";
+
+import { AssertsShape } from "yup/lib/object";
+import { ErrorHandler } from "../erros";
 
 class CartService {
-    createCartService = async ({ validated, params, decoded }: Request) => {
-      const user: User = await userRepository.findOne({ id: decoded.id });
-  
-      const dvd: Dvd = await dvdRepository.findOne({ id: params.id });
-  
-      if (!dvd) {
-        throw new ErrorHandler(404, "dvd not found.");
-      }
-  
-      if ((validated as IQuantity).quantity <= dvd.stock.price) {
-        const totalPrice = {
-          total: (validated as IQuantity).quantity * dvd.stock.price,
-        };
-  
-        const itemsCart = await cartRepository.save({ ...totalPrice, user, dvd });
-  
-        return await serializedCartSchema.validate(itemsCart, {
-          stripUnknown: true,
+  createCart = async (
+    dvd: Dvd,
+    userWithPwd: User,
+    quantity: number
+  ): Promise<AssertsShape<any>> => {
+    const { password, ...user } = userWithPwd;
+
+    const cart = Object.assign(new Stock(), {
+      total: dvd.stock.price * quantity,
+      user,
+      dvd,
+    });
+
+    await cartRepository.save(cart);
+
+    return { ...cart };
+  };
+
+  payCarts = async (req: Request): Promise<AssertsShape<any>> => {
+    if (!req.userAuth) {
+      throw new ErrorHandler(401, {
+        error: "missing admin permission",
+      });
+    }
+
+    const { comparePwd, password, ...user } = req?.userAuth;
+
+    const cartsNotPaid = await cartRepository.findAllBy({ user, paid: false });
+
+    const cartsPaidRightNow = [];
+
+    for (let cart of cartsNotPaid) {
+      const currentStock = await stockRepository.findOne({
+        id: cart.dvd.stock.id,
+      });
+      const boughtDvds = cart.total / currentStock.price;
+
+      if (currentStock.quantity >= boughtDvds) {
+        const newStock = Object.assign(currentStock, {
+          quantity: currentStock.quantity - boughtDvds,
         });
-      }
-  
-      throw new ErrorHandler(
-        422,
-        `current stock: ${dvd.stock.quantity}, received demand ${
-          (validated as IQuantity).quantity
-        }`
-      );
-    };
-  
-    updatedCartService = async ({ params }: Request) => {
-      const cartPay = await cartRepository.retieve({ id: params.id });
-  
-      if (!cartPay.paid) {
-        const quantity = cartPay.dvd.stock.price / cartPay.total;
-  
-        const paidAproved = {
-          paid: true,
-        };
-  
-        const dvdStackUpdated = await dvdRepository.findOne({
-          id: cartPay.dvd.id,
+
+        cart.dvd.stock = await stockRepository.save(newStock);
+        cart.paid = true;
+        const { password, ...user } = cart.user;
+        cart.user= user;
+        await cartRepository.save(cart);
+        cartsPaidRightNow.push(cart);
+      } else {
+        const cartsNotPaidAtEnding = await cartRepository.findAllBy({
+          user,
+          paid: false,
         });
-  
-        const stock = await stockRepository.retieve({
-          id: dvdStackUpdated.stock.id,
-        });
-  
-        const attStock = { quantity: stock.quantity - quantity };
-  
-        const updatedStock = await stockRepository.updateStock(stock.id, {
-          ...attStock,
-        });
-  
-        await cartRepository.updateCart(params.id, {
-          ...paidAproved,
-        });
-  
-        const cartPay2 = await cartRepository.retieve({ id: params.id });
-  
-        return await serializedCartSchema.validate(cartPay2, {
-          stripUnknown: true,
+        throw new ErrorHandler(202, {
+          error: {
+            Warming: "No sufient products to paid for all carts.",
+            paidCarts: cartsPaidRightNow,
+            NotPaidCarts: cartsNotPaidAtEnding,
+          },
         });
       }
-  
-      throw new ErrorHandler(400, "payment has already been approved");
-    };
-  
-    getAllCarts = async () => {
-      const getAllCarts = await cartRepository.allCart();
-  
-      return serializedCartsSchema.validate(getAllCarts, { stripUnknown: true });
-    };
-  }
-  
-  export default new CartService();
+    }
 
+    return { cart: cartsPaidRightNow };
+  };
+}
 
-
+export default new CartService();

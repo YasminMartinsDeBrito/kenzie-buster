@@ -27,7 +27,8 @@
       "typescript": "4.5.2"
    },
    "scripts": {
-      "start": "ts-node src/index.ts",
+      "start": "node dist/server.js",
+      "build": "tsc",
       "typeorm": "typeorm-ts-node-commonjs",
       "dev": "ts-node-dev --files src/server.ts",
       "migration:create": "typeorm-ts-node-commonjs migration:create",

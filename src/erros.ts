@@ -1,23 +1,25 @@
-import { Response } from 'express'
+import { Response } from "express";
 
-type TMessage = string | Record<string, any>
+type TMessage = string | Record<string, any>;
 
 class ErrorHandler {
-    public statusCode: number
-    public message: TMessage
+  public statusCode: number;
+  public message: TMessage;
 
-    constructor(statusCode: number, message: TMessage){
-        this.statusCode = statusCode
-        this.message = message
-    }
+  constructor(statusCode: number, message: TMessage) {
+    this.statusCode = statusCode;
+    this.message = message;
+  }
 }
 
 const errorHandler = (err: Error, res: Response) => {
-    if(err instanceof ErrorHandler){
-        return res.status(err.statusCode).json({message:err.message})
-    }
-    console.log(err)
+  if (err instanceof ErrorHandler) {
+    return res.status(err.statusCode).json(err.message);
+  }
 
-    return res.status(500).json({message: "Internal server error"})
-}
-export { ErrorHandler, errorHandler}
+  console.error(err);
+
+  return res.status(500).json({ message: "Internal server error." });
+};
+
+export { ErrorHandler, errorHandler };

@@ -1,12 +1,13 @@
-import { Request, Response} from 'express'
-import cartService from '../services/cart.service'
 
+import { Request, Response } from "express";
+import { cartService } from "../services";
 
 class CartController {
- payCartController = async(req: Request, res: Response) => {
-  const cart = await cartService.payCartService(req)
-  res.status(cart.status).json(cart.message)
- }
-  }
-  
-  export default new CartController();
+  payCart = async (req: Request, res: Response) => {
+    const carts = await cartService.payCarts(req);
+
+    return res.status(201).json(carts);
+  };
+}
+
+export default new CartController();

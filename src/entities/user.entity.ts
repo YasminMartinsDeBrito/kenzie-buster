@@ -15,13 +15,13 @@ export class User {
     email: string
 
     @Column()
-    password: string
+    password?: string
 
     @Column({default: false})
     isAdm?: boolean
 
     @OneToMany(() => Cart, (cart) => cart.user)
-    cart: Cart[]
+    cart?: Cart[]
 
 
     comparePwd = async (comparePassword: string) => {

@@ -1,36 +1,34 @@
-
+import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
-import { JwtPayload, verify, VerifyErrors } from "jsonwebtoken";
-import { ErrorHandler } from "../erros";
-import * as dotenv from "dotenv";
+import { verify } from "jsonwebtoken";
 import { User } from "../entities";
+import { ErrorHandler } from "../erros";
+import { userRepository } from "../repositories";
+
 dotenv.config();
 
-const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
-  const token: string = req.headers.authorization?.split(" ")[1];
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
-  req.validated = req.validated as User
-  if (req.validated.isAdm){
-      if (!token) {
-        throw new ErrorHandler(401, "Missing authorization token.");
-      }
+  if (!token) {
+    return next();
   }
 
-  return verify(
-    token,
-    process.env.SECRET_KEY,
-    (err: VerifyErrors, decoded: string | JwtPayload) => {
-        req.decoded = decoded as User
-
-        req.validated = req.validated as User
-
-      if (req.validated.isAdm) {
-        if(!req.decoded.isAdm){
-            throw new ErrorHandler(401, err.message);
-        }
-      }
-      return next();
+  return verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      throw new ErrorHandler(401, {
+        error: {
+          name: "JsonWebTokenError",
+          message: "jwt malformed",
+        },
+      });
     }
-  );
+
+    const user: User = await userRepository.findOne({ id: (<any>decoded).id });
+
+    req.userAuth = user;
+    return next();
+  });
 };
+
 export default verifyToken;
