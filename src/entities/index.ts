@@ -3,4 +3,4 @@ import { Cart } from "./cart.entity";
 import { Dvd } from "./dvd.entity";
 import { Stock } from "./stock.entity";
 
-export { User, Cart, Dvd, Stock}
+export { User, Cart, Dvd, Stock };

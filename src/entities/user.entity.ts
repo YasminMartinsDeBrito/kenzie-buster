@@ -1,30 +1,28 @@
-import  {compare } from 'bcrypt'
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm"
-import { Cart } from "./index"
+import { compare } from "bcrypt";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Cart } from "./cart.entity";
 
-
-@Entity('users')
+@Entity("users")
 export class User {
-    @PrimaryGeneratedColumn('uuid')
-    id?:string
+  @PrimaryGeneratedColumn("uuid")
+  id?: string;
 
-    @Column()
-    name: string
+  @Column()
+  name: string;
 
-    @Column({unique:true})
-    email: string
+  @Column({ unique: true })
+  email: string;
 
-    @Column()
-    password?: string
+  @Column()
+  password?: string;
 
-    @Column({default: false})
-    isAdm?: boolean
+  @Column({ default: false })
+  isAdm?: boolean;
 
-    @OneToMany(() => Cart, (cart) => cart.user)
-    cart?: Cart[]
+  @OneToMany(() => Cart, (carts) => carts.user)
+  carts?: Cart[];
 
-
-    comparePwd = async (comparePassword: string) => {
-        return await compare(comparePassword, this.password)
-    }
+  comparePwd = async (recievedPwd: string): Promise<boolean> => {
+    return await compare(recievedPwd, this.password);
+  };
 }

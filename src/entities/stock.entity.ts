@@ -1,20 +1,17 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToOne,JoinColumn } from "typeorm";
-import { Dvd } from "./index";
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm";
+import { Dvd } from "./dvd.entity";
 
-
-@Entity('stock')
+@Entity("stock")
 export class Stock {
-    @PrimaryGeneratedColumn('uuid')
-    id?: string
+  @PrimaryGeneratedColumn("uuid")
+  id?: string;
 
-    @Column({type: 'int'})
-    quantity: number
+  @Column({ type: "integer" })
+  quantity: number;
 
-    @Column({type:'float'})
-    price:number
+  @Column({ type: "numeric" })
+  price: number;
 
-    @OneToOne(() => Dvd,(dvd) => dvd.stock)
-    @JoinColumn()
-    dvd: Dvd
+  @OneToOne(() => Dvd, (dvd) => dvd.stock)
+  dvd?: Dvd;
 }
-

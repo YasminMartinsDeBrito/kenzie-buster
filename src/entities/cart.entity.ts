@@ -1,21 +1,21 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Dvd } from "./index";
-import { User } from "./index";
+import { Dvd } from "./dvd.entity";
+import { User } from "./user.entity";
 
-@Entity('cart')
+@Entity("cart")
 export class Cart {
-    @PrimaryGeneratedColumn('uuid')
-    id?:string
+  @PrimaryGeneratedColumn("uuid")
+  id?: string;
 
-    @Column({default: false})
-    paid?: boolean
+  @Column({ default: false })
+  paid?: boolean;
 
-    @Column({type:'float'})
-    total: number
+  @Column({ type: "float" })
+  total: number;
 
-    @ManyToOne(() => User, (user) => user, {eager:true})
-     user: User
+  @ManyToOne(() => User, (user) => user, { eager: true })
+  user: User;
 
-    @ManyToOne(() => Dvd, (dvd) => dvd, {eager: true})
-    dvd: Dvd
+  @ManyToOne(() => Dvd, (dvd) => dvd, { eager: true })
+  dvd: Dvd;
 }
