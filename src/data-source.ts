@@ -23,8 +23,7 @@ dotenv.config();
 export const AppDataSource =
   process.env.NODE_ENV === "test"
     ? new DataSource({
-        type: "sqlite",
-        database: ":memory:",
+        type: "postgres",
         entities: [path.join(__dirname, "/entities/*.ts")],
         synchronize: true,
       })
